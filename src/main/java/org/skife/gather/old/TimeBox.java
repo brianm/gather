@@ -1,4 +1,4 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

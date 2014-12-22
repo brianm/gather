@@ -1,7 +1,8 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.function.Predicate;
 
 public interface GuardHouse
 {

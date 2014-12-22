@@ -1,4 +1,4 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 public interface Factory
 {

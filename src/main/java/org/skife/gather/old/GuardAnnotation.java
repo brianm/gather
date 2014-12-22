@@ -1,9 +1,10 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Gather
+public @interface GuardAnnotation
 {
+    Class<? extends GuardHouse> value();
 }

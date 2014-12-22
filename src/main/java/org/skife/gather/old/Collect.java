@@ -1,10 +1,9 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Priority
+public @interface Collect
 {
-    int value();
 }

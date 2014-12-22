@@ -1,8 +1,9 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Predicate;
 
 public class GuardMethodGuardHouse implements GuardHouse
 {
@@ -22,19 +23,12 @@ public class GuardMethodGuardHouse implements GuardHouse
         {
             throw new IllegalStateException("guard method, " + method_name + " must return boolean");
         }
-        return new Predicate<Object[]>()
-        {
-            public boolean test(Object[] arg)
-            {
-                try {
-                    return (Boolean) guard_method.invoke(target, arg);
-                }
-                catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-                catch (InvocationTargetException e) {
-                    throw new IllegalStateException(e);
-                }
+        return arg -> {
+            try {
+                return (Boolean) guard_method.invoke(target, arg);
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalStateException(e);
             }
         };
     }
@@ -56,20 +50,12 @@ public class GuardMethodGuardHouse implements GuardHouse
             throw new IllegalStateException("guard method, " + method_name + " must return boolean");
         }
 
-        return new Predicate<Object>()
-        {
-
-            public boolean test(Object arg)
-            {
-                try {
-                    return (Boolean) guard_method.invoke(target, arg);
-                }
-                catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-                catch (InvocationTargetException e) {
-                    throw new IllegalStateException(e);
-                }
+        return arg -> {
+            try {
+                return (Boolean) guard_method.invoke(target, arg);
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalStateException(e);
             }
         };
     }
@@ -95,20 +81,12 @@ public class GuardMethodGuardHouse implements GuardHouse
             throw new IllegalStateException("guard method, " + method_name + " must return boolean");
         }
 
-        return new Predicate<Object>()
-        {
-
-            public boolean test(Object arg)
-            {
-                try {
-                    return (Boolean) guard_method.invoke(target, arg);
-                }
-                catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-                catch (InvocationTargetException e) {
-                    throw new IllegalStateException(e);
-                }
+        return arg -> {
+            try {
+                return (Boolean) guard_method.invoke(target, arg);
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalStateException(e);
             }
         };
 

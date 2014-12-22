@@ -1,6 +1,8 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import junit.framework.TestCase;
+import org.skife.gather.Cat;
+import org.skife.gather.Dog;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;

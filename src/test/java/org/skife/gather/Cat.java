@@ -1,4 +1,4 @@
-package org.skife.timebox;
+package org.skife.gather;
 
 public class Cat
 {

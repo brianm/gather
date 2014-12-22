@@ -1,6 +1,7 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import junit.framework.TestCase;
+import org.skife.gather.Dog;
 
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
@@ -8,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class TestGather extends TestCase
+public class TestCollect extends TestCase
 {
     public void testUnguardedGather() throws Exception
     {
@@ -16,7 +17,7 @@ public class TestGather extends TestCase
         final TimeBox box = new TimeBox(new Object()
         {
             @Priority(3)
-            public void best(@Gather Collection<Dog> dogs)
+            public void best(@Collect Collection<Dog> dogs)
             {
                 flag.set(dogs.size());
             }
@@ -40,7 +41,7 @@ public class TestGather extends TestCase
         final TimeBox box = new TimeBox(new Object()
         {
             @Priority(3)
-            public void collectPuppies(@Gather @GuardMethod("isPuppy") Collection<Dog> dogs)
+            public void collectPuppies(@Collect @GuardMethod("isPuppy") Collection<Dog> dogs)
             {
                 flag.set(dogs.size());
             }

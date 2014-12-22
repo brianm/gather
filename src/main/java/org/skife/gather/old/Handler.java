@@ -1,4 +1,4 @@
-package org.skife.timebox;
+package org.skife.gather.old;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -7,6 +7,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 class Handler
 {
@@ -29,7 +30,7 @@ class Handler
         this.values = new Object[types.length];
         this.authorities = new long[types.length];
         this.gatheredTypes = new Class[types.length];
-        this.parameterTests = new ArrayList<Collection<Predicate>>(method.getParameterTypes().length);
+        this.parameterTests = new ArrayList<>(method.getParameterTypes().length);
 
         for (Annotation annotation : method.getAnnotations()) {
             for (Class<?> iface : annotation.getClass().getInterfaces()) {
@@ -48,7 +49,7 @@ class Handler
         }
 
         for (int i = 0; i < method.getParameterTypes().length; i++) {
-            parameterTests.add(new ArrayList<Predicate>());
+            parameterTests.add(new ArrayList<>());
         }
 
         // now prefill authorities to required authority - 1,
@@ -95,7 +96,7 @@ class Handler
     }
 
 
-    private class GatherData
+    private static class GatherData
     {
         boolean isGather = false;
         Class gatherType;
@@ -107,7 +108,7 @@ class Handler
         GatherData gd = new GatherData();
         gd.gatherIndex = parameterIndex;
         for (Annotation annotation : annos) {
-            if (annotation instanceof Gather) {
+            if (annotation instanceof Collect) {
                 Class param_type = method.getParameterTypes()[parameterIndex];
                 if (!Collection.class.isAssignableFrom(param_type)) {
                     throw new IllegalArgumentException("Can only @Gather against Collection");
