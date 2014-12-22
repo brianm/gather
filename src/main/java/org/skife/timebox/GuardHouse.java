@@ -1,4 +1,4 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

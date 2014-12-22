@@ -1,4 +1,4 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 public interface Predicate<T>
 {

@@ -1,9 +1,10 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Gather
+public @interface Authority
 {
+    long value();
 }

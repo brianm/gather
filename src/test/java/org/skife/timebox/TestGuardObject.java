@@ -1,4 +1,4 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 import junit.framework.TestCase;
 

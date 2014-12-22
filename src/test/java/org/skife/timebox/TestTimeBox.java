@@ -1,8 +1,6 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 import junit.framework.TestCase;
-import com.ning.timebox.clojure.CLJ;
-import com.ning.timebox.ruby.Rb;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,14 +28,10 @@ public class TestTimeBox extends TestCase
         });
 
         final CountDownLatch latch = new CountDownLatch(1);
-        new Thread(new Runnable()
-        {
-            public void run()
-            {
-                box.provide(new Dog());
-                box.provide(new Cat());
-                latch.countDown();
-            }
+        new Thread(() -> {
+            box.provide(new Dog());
+            box.provide(new Cat());
+            latch.countDown();
         }).start();
         latch.await();
 

@@ -1,4 +1,4 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -1,11 +1,10 @@
-package com.ning.timebox;
+package org.skife.timebox;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-@GuardAnnotation(GuardMethodGuardHouse.class)
-public @interface GuardMethod
+public @interface GuardAnnotation
 {
-    String value();
+    Class<? extends GuardHouse> value();
 }
