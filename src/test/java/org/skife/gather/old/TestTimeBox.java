@@ -2,7 +2,9 @@ package org.skife.gather.old;
 
 import junit.framework.TestCase;
 import org.skife.gather.Cat;
+import org.skife.gather.CatBuilder;
 import org.skife.gather.Dog;
+import org.skife.gather.Priority;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +34,7 @@ public class TestTimeBox extends TestCase
         final CountDownLatch latch = new CountDownLatch(1);
         new Thread(() -> {
             box.provide(new Dog());
-            box.provide(new Cat());
+            box.provide(new CatBuilder().createCat());
             latch.countDown();
         }).start();
         latch.await();
@@ -186,7 +188,7 @@ public class TestTimeBox extends TestCase
             }
         });
 
-        box.provide(new Cat());
+        box.provide(new CatBuilder().createCat());
 
         // should timeout without matching, no fallback
         assertFalse(box.react(10, TimeUnit.MILLISECONDS));

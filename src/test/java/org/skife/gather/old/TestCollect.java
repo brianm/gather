@@ -2,6 +2,7 @@ package org.skife.gather.old;
 
 import junit.framework.TestCase;
 import org.skife.gather.Dog;
+import org.skife.gather.Priority;
 
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;

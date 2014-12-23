@@ -1,4 +1,4 @@
-package org.skife.gather.old;
+package org.skife.gather;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
