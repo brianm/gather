@@ -1,21 +1,23 @@
 package org.skife.gather;
 
+import java.util.Optional;
+
 class Value
 {
-    private final String name;
+    private final Optional<String> name;
     private final Object actual;
 
-    Value(String name, Object actual) {
+    Value(Optional<String> name, Object actual) {
         this.name = name;
         this.actual = actual;
     }
 
-    public String getName()
+    Optional<String> getName()
     {
         return name;
     }
 
-    public Object getActual()
+    Object getActual()
     {
         return actual;
     }

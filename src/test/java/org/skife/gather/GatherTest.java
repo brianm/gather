@@ -1,14 +1,14 @@
 package org.skife.gather;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.clocked.ClockedExecutorService;
 
-import javax.inject.Named;
 import java.time.Duration;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ public class GatherTest
             }
 
             @Priority(2)
-            public String dog(@Named("Brian's dog") Dog _d)
+            public String dog(Dog _d)
             {
                 return "woof";
             }
@@ -56,11 +56,12 @@ public class GatherTest
             }
         });
 
-        Future<String> f = g.start();
+        ListenableFuture<String> f = g.start();
 
-        g.provide("Brian's dog", new Dog("Bean", 17));
+        g.provide(new Dog("Bean", 17));
         g.provide(new Cat(7));
 
+        clock.advance(2, TimeUnit.SECONDS);
         assertThat(f.get()).isEqualTo("woof meow");
     }
 
@@ -70,7 +71,7 @@ public class GatherTest
         Gather<String> g = new Gather(String.class, clock, Duration.parse("PT1s"), direct, new Object()
         {
             @Priority(1)
-            public int foo(Dog _d)
+            public int _foo(Dog _d)
             {
                 return 1;
             }

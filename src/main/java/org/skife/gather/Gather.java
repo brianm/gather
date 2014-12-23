@@ -16,10 +16,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.collect.Maps.newTreeMap;
@@ -28,7 +30,8 @@ import static com.google.common.collect.Multimaps.newSetMultimap;
 public class Gather<T>
 {
     private final SettableFuture<T> result = SettableFuture.create();
-    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicBoolean finished = new AtomicBoolean(false);
     private final Set<Value> values = Sets.newConcurrentHashSet();
     private final Object lock = new Object();
 
@@ -36,8 +39,8 @@ public class Gather<T>
     private final Duration timeout;
     private final Executor executor;
 
-    private final Set<Candidate> topCandidates;
-    private final List<Collection<Candidate>> otherCandidates;
+    private final Set<Candidate<T>> topCandidates;
+    private final List<Collection<Candidate<T>>> otherCandidates;
 
     public Gather(final Class<T> resultType,
                   final ScheduledExecutorService scheduler,
@@ -49,17 +52,17 @@ public class Gather<T>
         this.timeout = timeout;
         this.executor = executor;
 
-        SetMultimap<Integer, Candidate> levels = newSetMultimap(newTreeMap(Comparator.<Integer>reverseOrder()),
-                                                                Sets::newHashSet);
+        SetMultimap<Integer, Candidate<T>> levels = newSetMultimap(newTreeMap(Comparator.<Integer>reverseOrder()),
+                                                                   Sets::newHashSet);
         Arrays.stream(target.getClass().getMethods())
               .filter((m) -> m.isAnnotationPresent(Priority.class))
               .forEach((m) -> {
-                  Candidate c = new Candidate(resultType, m);
+                  Candidate c = new Candidate(resultType, target, m);
                   levels.put(c.getPriority(), c);
               });
         Preconditions.checkArgument(!levels.isEmpty(), "No candidate methods found!");
-        Iterator<Map.Entry<Integer, Collection<Candidate>>> itty = levels.asMap().entrySet().iterator();
-        Map.Entry<Integer, Collection<Candidate>> first = itty.next();
+        Iterator<Map.Entry<Integer, Collection<Candidate<T>>>> itty = levels.asMap().entrySet().iterator();
+        Map.Entry<Integer, Collection<Candidate<T>>> first = itty.next();
         topCandidates = ImmutableSet.copyOf(first.getValue());
         otherCandidates = ImmutableList.copyOf(Iterators.transform(itty, Map.Entry::getValue));
     }
@@ -67,34 +70,10 @@ public class Gather<T>
 
     public ListenableFuture<T> start()
     {
-        if (!running.getAndSet(true)) {
+        if (!started.getAndSet(true)) {
             scheduler.schedule(this::timeout, timeout.toMillis(), TimeUnit.MILLISECONDS);
         }
         return result;
-    }
-
-    private void timeout()
-    {
-        // test top candidates
-
-        // test other candidates
-
-        // fallback to timeout exception
-    }
-
-    private void considerNewValue(String name, Object value)
-    {
-        synchronized (lock) {
-            values.add(new Value(name, value));
-            // only evaluate if still running
-            if (running.get()) {
-                for (Candidate candidate : topCandidates) {
-                    if (candidate.isSatisfied(values)) {
-                        // finished!
-                    }
-                }
-            }
-        }
     }
 
     public void provide(final Object value)
@@ -104,6 +83,74 @@ public class Gather<T>
 
     public void provide(final String name, final Object value)
     {
-        executor.execute(() -> considerNewValue(name, value));
+        executor.execute(() -> {
+            synchronized (lock) {
+                __newValue(Optional.ofNullable(name), value);
+                __evaluateCandidates(Consider.TOP);
+            }
+        });
+    }
+
+    private void timeout()
+    {
+        executor.execute(() -> {
+            synchronized (lock) {
+                __evaluateCandidates(Consider.ALL);
+                if (!finished.get()) {
+                    __finish(new TimeoutException("No candidates matched in time"), null);
+                }
+            }
+        });
+    }
+
+    /**
+     * Calls to this must be made with lock
+     */
+    private void __newValue(Optional<String> name, Object value)
+    {
+        if (!finished.get()) {
+            values.add(new Value(name, value));
+        }
+    }
+
+    private void __evaluateCandidates(Consider consider)
+    {
+        if (!finished.get()) {
+            // always consider top candidates
+            for (Candidate<T> candidate : topCandidates) {
+                if (candidate.isSatisfiedBy(values)) {
+                    T r = candidate.invoke(values);
+                    __finish(null, r);
+                    return;
+                }
+            }
+            if (consider == Consider.ALL) {
+                for (Collection<Candidate<T>> level : otherCandidates) {
+                    for (Candidate<T> candidate : level) {
+                        if (candidate.isSatisfiedBy(values)) {
+                            T r = candidate.invoke(values);
+                            __finish(null, r);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void __finish(Exception e, T value)
+    {
+        if (e != null) {
+            result.setException(e);
+        }
+        else {
+            result.set(value);
+        }
+        finished.set(true);
+    }
+
+    private static enum Consider
+    {
+        TOP, ALL
     }
 }
