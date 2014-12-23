@@ -15,7 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Gather<T>
 {
     private final SettableFuture<T> result = SettableFuture.create();
-    private final AtomicBoolean started = new AtomicBoolean(false);
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final Object lock = new Object();
 
     private final ScheduledExecutorService scheduler;
     private final Duration timeout;
@@ -49,7 +50,7 @@ public class Gather<T>
 
     public ListenableFuture<T> start()
     {
-        if (!started.getAndSet(true)) {
+        if (!running.getAndSet(true)) {
             scheduler.schedule(this::timeout, timeout.toMillis(), TimeUnit.MILLISECONDS);
         }
         return result;
@@ -57,17 +58,30 @@ public class Gather<T>
 
     private void timeout()
     {
+        // test top candidates
 
+        // test other candidates
+
+        // fallback to timeout exception
+    }
+
+    private void considerNewValue(String name, Object value)
+    {
+        synchronized (lock) {
+            // only evaluate if still running
+            if (running.get()) {
+
+            }
+        }
     }
 
     public void provide(final Object value)
     {
-
-
+        provide(null, value);
     }
 
     public void provide(final String name, final Object value)
     {
-
+        executor.execute(() -> considerNewValue(name, value));
     }
 }
